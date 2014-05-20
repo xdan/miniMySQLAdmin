@@ -1439,8 +1439,8 @@ $sql = '';
 $database_selected  = false;
 $connected  = false;
 
-if( isset($_COOKIE[$conifg['cookie']]) ){
-	list($config['host'],$config['username'],$config['password']) = _decode($_COOKIE[$conifg['cookie']]);
+if( isset($_COOKIE[$config['cookie']]) ){
+	list($config['host'],$config['username'],$config['password']) = _decode($_COOKIE[$config['cookie']]);
 	if( $db->connect($config['host'],$config['username'],$config['password']) ){
 		$connected = true;
 	}else{
@@ -1581,7 +1581,7 @@ switch( $action ){
 		$db->disconnect();
 		if( $db->connect($_REQUEST['host'],$_REQUEST['username'],$_REQUEST['password']) ){
 			if( !empty($_REQUEST['remember']) ){
-				setcookie($conifg['cookie'],_encode($_REQUEST['host'],$_REQUEST['username'],$_REQUEST['password']));
+				setcookie($config['cookie'],_encode($_REQUEST['host'],$_REQUEST['username'],$_REQUEST['password']));
 			}else{
 				$_SESSION['host'] = $_REQUEST['host'];
 				$_SESSION['username'] = $_REQUEST['username'];
@@ -1595,7 +1595,7 @@ switch( $action ){
 				$connect_data = try_connect_through($_REQUEST['through']);
 				if( $connect_data ){
 					if( !empty($_REQUEST['remember']) ){
-						setcookie($conifg['cookie'],_encode($connect_data['host'],$connect_data['username'],$connect_data['password']));
+						setcookie($config['cookie'],_encode($connect_data['host'],$connect_data['username'],$connect_data['password']));
 					}else{
 						$_SESSION['host'] = $connect_data['host'];
 						$_SESSION['username'] = $connect_data['username'];
@@ -1606,7 +1606,7 @@ switch( $action ){
 				}
 			}
 			$_SESSION['host'] = $_SESSION['username'] = $_SESSION['password'] = '';
-			setcookie($conifg['cookie'],'');
+			setcookie($config['cookie'],'');
 			$data['error'] = $db->error();
 			$action = 'login';
 		}
