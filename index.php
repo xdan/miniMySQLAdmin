@@ -17,7 +17,7 @@ include 'includes/logic.php';
 <title>Mini MySQL Admin v<? include 'includes/version.php';?></title>
 <meta name="keywords" content="" /> 
 <meta name="description" content=""/>
-<link href="favicon.png" rel="shortcut icon" type="image/x-icon">
+<link href="styles/favicon.png" rel="shortcut icon" type="image/x-icon">
 <link href="styles/bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
 <link href="styles/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet"/>
 <link rel="stylesheet" href="scripts/codemirror.css">
