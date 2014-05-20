@@ -3,7 +3,9 @@ session_start();
 include 'includes/config.php';
 
 include 'includes/connector.php';
+
 include 'includes/functions.php';
+
 include 'includes/SqlFormatter.php';
 
 include 'includes/logic.php';
@@ -26,15 +28,15 @@ include 'includes/logic.php';
 <div class="header panel-success ">
 	<a href="http://xdsoft.net/miniMySQLAdmin/"><strong>miniMySQLAdmin</strong> <span style="opacity:0.7;">(version:<? include 'includes/version.php';?>)</span></a>
 	<?php if( $connected ){ ?>
-	<a href="?sql=<?php echo _('show databases;'); ?>">Databases</a>
+	<a href="?sql=<?php echo __('show databases;'); ?>">Databases</a>
 	<?php } ?>
 	<?php if( $database_selected ){ ?>
-		<i class="icon icon_db"></i> <a href="?sql=<?php echo _('show tables;');?>"><?php echo $_SESSION['dbname']?></a>
-		<a href="?sql=<?php echo _('show variables;');?>">Variables</a>
+		<i class="icon icon_db"></i> <a href="?sql=<?php echo __('show tables;');?>"><?php echo $_SESSION['dbname']?></a>
+		<a href="?sql=<?php echo __('show variables;');?>">Variables</a>
 		<?php if( $_GET['table'] ){ ?>
-			<a href="?table=<?php echo $_SESSION['table']?>&sql=<?php echo _('SHOW COLUMNS FROM `'.$db->_($_SESSION['table']).'`;');?>">Structure</a>
+			<a href="?table=<?php echo $_SESSION['table']?>&sql=<?php echo __('SHOW COLUMNS FROM `'.$db->_($_SESSION['table']).'`;');?>">Structure</a>
 			<i class="icon icon_table"></i> <a href="?table=<?php echo $_SESSION['table']?>">Data</a>
-			<a href="?table=<?php echo $_SESSION['table']?>&sql=<?php echo _('SHOW INDEX FROM `'.$db->_($_SESSION['table']).'`;');?>">Indexes</a>
+			<a href="?table=<?php echo $_SESSION['table']?>&sql=<?php echo __('SHOW INDEX FROM `'.$db->_($_SESSION['table']).'`;');?>">Indexes</a>
 		<?php }?>
 	<?php } ?>
 
@@ -78,7 +80,7 @@ case 'edit':?>
 			<div class="col-sm-offset-3 col-sm-10">
 			  <button type="submit" class="btn btn-primary">&nbsp;&nbsp;&nbsp;Save&nbsp;&nbsp;&nbsp;</button>
 			  <button type="reset" class="btn btn-default">&nbsp;&nbsp;&nbsp;Reset&nbsp;&nbsp;&nbsp;</button>
-			  <button type="button" onclick="document.location='?table=<?php echo _($_GET['table']);?>';" class="btn btn-danger">&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;</button>
+			  <button type="button" onclick="document.location='?table=<?php echo __($_GET['table']);?>';" class="btn btn-danger">&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;</button>
 			</div>
 		</div>
 	</form>
@@ -122,7 +124,7 @@ case 'add':?>
 			<div class="col-sm-offset-3 col-sm-10">
 			  <button type="submit" class="btn btn-primary">&nbsp;&nbsp;&nbsp;Save&nbsp;&nbsp;&nbsp;</button>
 			  <button type="reset" class="btn btn-default">&nbsp;&nbsp;&nbsp;Reset&nbsp;&nbsp;&nbsp;</button>
-			  <button type="button" onclick="document.location='?table=<?php echo _($_GET['table']);?>';" class="btn btn-danger">&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;</button>
+			  <button type="button" onclick="document.location='?table=<?php echo __($_GET['table']);?>';" class="btn btn-danger">&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;</button>
 			</div>
 		</div>
 	</form>

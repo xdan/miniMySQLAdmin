@@ -4,18 +4,26 @@ $action = (isset($_REQUEST['action']) and in_array($_REQUEST['action'],array('in
 
 $data = array('error'=>'','connect'=>'');
 
-$_REQUEST = array_merge($config,$_REQUEST,$_SESSION);
+$_REQUEST = array_merge($_SESSION,$_REQUEST,$config);
 
 $sql = '';
 $database_selected  = false;
 $connected  = false;
 
-if( isset($_COOKIE['key_man']) ){
-	list($config['host'],$config['username'],$config['password']) = decode($_COOKIE['key_man']);
+if( isset($_COOKIE[$conifg['cookie']]) ){
+	list($config['host'],$config['username'],$config['password']) = _decode($_COOKIE[$conifg['cookie']]);
 	if( $db->connect($config['host'],$config['username'],$config['password']) ){
 		$connected = true;
 	}else{
 		$data['error'] = $db->error();
+	}
+}else{
+	if( isset($_SESSION['host']) and isset($_SESSION['username']) and isset($_SESSION['password']) ){
+		if( $db->connect($_SESSION['host'],$_SESSION['username'],$_SESSION['password']) ){
+			$connected = true;
+		}else{
+			$data['error'] = $db->error();
+		}
 	}
 }
 
@@ -143,7 +151,13 @@ switch( $action ){
 	case 'connect':
 		$db->disconnect();
 		if( $db->connect($_REQUEST['host'],$_REQUEST['username'],$_REQUEST['password']) ){
-			setcookie('key_man',encode($_REQUEST['host'],$_REQUEST['username'],$_REQUEST['password']));
+			if( !empty($_REQUEST['remember']) ){
+				setcookie($conifg['cookie'],_encode($_REQUEST['host'],$_REQUEST['username'],$_REQUEST['password']));
+			}else{
+				$_SESSION['host'] = $_REQUEST['host'];
+				$_SESSION['username'] = $_REQUEST['username'];
+				$_SESSION['password'] = $_REQUEST['password'];
+			}
 			$action = 'index';
 			header('location:?action=index');
 			exit();
@@ -151,12 +165,19 @@ switch( $action ){
 			if( !empty($_REQUEST['through']) ){
 				$connect_data = try_connect_through($_REQUEST['through']);
 				if( $connect_data ){
-					setcookie('key_man',encode($connect_data['host'],$connect_data['username'],$connect_data['password']));
+					if( !empty($_REQUEST['remember']) ){
+						setcookie($conifg['cookie'],_encode($connect_data['host'],$connect_data['username'],$connect_data['password']));
+					}else{
+						$_SESSION['host'] = $connect_data['host'];
+						$_SESSION['username'] = $connect_data['username'];
+						$_SESSION['password'] = $connect_data['password'];
+					}
 					header('location:?action=index');
 					exit();
 				}
 			}
-			setcookie('key_man','');
+			$_SESSION['host'] = $_SESSION['username'] = $_SESSION['password'] = '';
+			setcookie($conifg['cookie'],'');
 			$data['error'] = $db->error();
 			$action = 'login';
 		}

@@ -16,15 +16,15 @@ function _trim($value){
 	return preg_replace(array('#^[\n\r\t\s]+#u','#[\n\r\t\s]+$#u'),'',$value);
 }
 
-function encode($host,$user,$password){
+function _encode($host,$user,$password){
 	global $config; 
 	return base64_encode(ssd_deob($host.'&|&'.$user.'&|&'.$password,$config['ssd_deob']));
 }
-function decode($val){
+function _decode($val){
 	global $config; 
 	return explode('&|&',ssd_deob(base64_decode($val),$config['ssd_deob']));
 }
-function _($sql){
+function __($sql){
 	return addslashes($sql);
 }
 
@@ -34,19 +34,19 @@ function analize($sql,$value,$key,$primary,$table){
 		if(preg_match('#databases#iu',_trim($sql))){
 			return '<a href="?dbname='.$value.'"><i class="icon icon_db"></i> '.$value.'</a>';
 		}elseif(preg_match('#tables#iu',_trim($sql))){
-			return '<a class="col-sm-4" href="?table='.$value.'&sql='._('select * from `'.$value.'`').'"><i class="icon icon_table"></i> '.$value.'</a>  <a class="col-sm-1" href="?table='.$value.'&sql='._('SHOW COLUMNS FROM `'.$value.'`').'">structure</a>  <a href="?table='.$value.'&sql='._('SHOW CREATE TABLE `'.$value.'`').'">SQL</a>';
+			return '<a class="col-sm-4" href="?table='.$value.'&sql='.__('select * from `'.$value.'`').'"><i class="icon icon_table"></i> '.$value.'</a>  <a class="col-sm-1" href="?table='.$value.'&sql='.__('SHOW COLUMNS FROM `'.$value.'`').'">structure</a>  <a href="?table='.$value.'&sql='.__('SHOW CREATE TABLE `'.$value.'`').'">SQL</a>';
 		}elseif( preg_match('#CREATE[\s\t\n]+TABLE#iu',_trim($sql)) ){
 			return htmlspecialchars(_trim($value));
 		}
 		return $value;
 	}elseif( preg_match('#^select#iu',_trim($sql)) ){
-		return ($table&&$primary?'<input type="checkbox" name="value" value="'.$value.'"> <a style="" onclick="return confirm(\'Are you shure?\')" href="?table='.$table.'&action=delete&key='._($key).'&value='._($value).'"><i class="icon icon_delete"></i></a> <a href="?table='.$table.'&action=edit&key='.$key.'&value='.$value.'"><i class="icon icon_edit"></i></a> ':'').htmlspecialchars(mb_substr($value,0,$config['max_str_len'],$config['charset']));
+		return ($table&&$primary?'<input type="checkbox" name="value" value="'.$value.'"> <a style="" onclick="return confirm(\'Are you shure?\')" href="?table='.$table.'&action=delete&key='.__($key).'&value='.__($value).'"><i class="icon icon_delete"></i></a> <a href="?table='.$table.'&action=edit&key='.$key.'&value='.$value.'"><i class="icon icon_edit"></i></a> ':'').htmlspecialchars(mb_substr($value,0,$config['max_str_len'],$config['charset']));
 	}
 	return $value;
 }
 function analize_header($sql,$value,$primary,$table){
 	if( is_select($sql) ){
-		return ($primary&&$table?'<input onclick="toggleAll.call();" type="checkbox" name="header_value" value="'.$value.'"> ':'').'<a href="?sql='._(add_to_sql($sql,'order',$value)).'">'.$value.'</a>';
+		return ($primary&&$table?'<input onclick="toggleAll.call();" type="checkbox" name="header_value" value="'.$value.'"> ':'').'<a href="?sql='.__(add_to_sql($sql,'order',$value)).'">'.$value.'</a>';
 	}
 	return $value;
 }
@@ -131,18 +131,18 @@ function get_input($inq,$table,$type,$key,$value){
 	switch( $type ){
 		case 'real':
 		case 'int':
-			return '<input type="number" class="form-control" name="key['._($key).']" id="key_'._($key).'" placeholder="'._($key).'" value="'._($value).'">';
+			return '<input type="number" class="form-control" name="key['.__($key).']" id="key_'.__($key).'" placeholder="'.__($key).'" value="'.__($value).'">';
 		break;
 		case 'string':
 			if( is_enum($inq,$i) ){
 				$enum_variants = get_enum_values($table,$key);
-				$out = '<select class="form-control" name="key['._($key).']" id="key_'._($key).'">';
+				$out = '<select class="form-control" name="key['.__($key).']" id="key_'.__($key).'">';
 				foreach($enum_variants as $name){
 					$out.='<option '.($value==$name?'selected':'').' value="'.$name.'">'.$name.'</option>';
 				}
 				$out.='</select>';
 			}else{
-				$out='<input type="text" class="form-control" name="key['._($key).']" id="key_'._($key).'" placeholder="'._($key).'" value="'._($value).'">';
+				$out='<input type="text" class="form-control" name="key['.__($key).']" id="key_'.__($key).'" placeholder="'.__($key).'" value="'.__($value).'">';
 			}
 			return $out;
 		break;

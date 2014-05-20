@@ -134,6 +134,7 @@ class db{
 	}
 }
 
+
 function ssd_deob($String, $Password='dgfdfg234'){
     $String = $String.'';
 	$Salt='GKJ76DL2dsgDP'; 
@@ -151,15 +152,15 @@ function _trim($value){
 	return preg_replace(array('#^[\n\r\t\s]+#u','#[\n\r\t\s]+$#u'),'',$value);
 }
 
-function encode($host,$user,$password){
+function _encode($host,$user,$password){
 	global $config; 
 	return base64_encode(ssd_deob($host.'&|&'.$user.'&|&'.$password,$config['ssd_deob']));
 }
-function decode($val){
+function _decode($val){
 	global $config; 
 	return explode('&|&',ssd_deob(base64_decode($val),$config['ssd_deob']));
 }
-function _($sql){
+function __($sql){
 	return addslashes($sql);
 }
 
@@ -169,19 +170,19 @@ function analize($sql,$value,$key,$primary,$table){
 		if(preg_match('#databases#iu',_trim($sql))){
 			return '<a href="?dbname='.$value.'"><i class="icon icon_db"></i> '.$value.'</a>';
 		}elseif(preg_match('#tables#iu',_trim($sql))){
-			return '<a class="col-sm-4" href="?table='.$value.'&sql='._('select * from `'.$value.'`').'"><i class="icon icon_table"></i> '.$value.'</a>  <a class="col-sm-1" href="?table='.$value.'&sql='._('SHOW COLUMNS FROM `'.$value.'`').'">structure</a>  <a href="?table='.$value.'&sql='._('SHOW CREATE TABLE `'.$value.'`').'">SQL</a>';
+			return '<a class="col-sm-4" href="?table='.$value.'&sql='.__('select * from `'.$value.'`').'"><i class="icon icon_table"></i> '.$value.'</a>  <a class="col-sm-1" href="?table='.$value.'&sql='.__('SHOW COLUMNS FROM `'.$value.'`').'">structure</a>  <a href="?table='.$value.'&sql='.__('SHOW CREATE TABLE `'.$value.'`').'">SQL</a>';
 		}elseif( preg_match('#CREATE[\s\t\n]+TABLE#iu',_trim($sql)) ){
 			return htmlspecialchars(_trim($value));
 		}
 		return $value;
 	}elseif( preg_match('#^select#iu',_trim($sql)) ){
-		return ($table&&$primary?'<input type="checkbox" name="value" value="'.$value.'"> <a style="" onclick="return confirm(\'Are you shure?\')" href="?table='.$table.'&action=delete&key='._($key).'&value='._($value).'"><i class="icon icon_delete"></i></a> <a href="?table='.$table.'&action=edit&key='.$key.'&value='.$value.'"><i class="icon icon_edit"></i></a> ':'').htmlspecialchars(mb_substr($value,0,$config['max_str_len'],$config['charset']));
+		return ($table&&$primary?'<input type="checkbox" name="value" value="'.$value.'"> <a style="" onclick="return confirm(\'Are you shure?\')" href="?table='.$table.'&action=delete&key='.__($key).'&value='.__($value).'"><i class="icon icon_delete"></i></a> <a href="?table='.$table.'&action=edit&key='.$key.'&value='.$value.'"><i class="icon icon_edit"></i></a> ':'').htmlspecialchars(mb_substr($value,0,$config['max_str_len'],$config['charset']));
 	}
 	return $value;
 }
 function analize_header($sql,$value,$primary,$table){
 	if( is_select($sql) ){
-		return ($primary&&$table?'<input onclick="toggleAll.call();" type="checkbox" name="header_value" value="'.$value.'"> ':'').'<a href="?sql='._(add_to_sql($sql,'order',$value)).'">'.$value.'</a>';
+		return ($primary&&$table?'<input onclick="toggleAll.call();" type="checkbox" name="header_value" value="'.$value.'"> ':'').'<a href="?sql='.__(add_to_sql($sql,'order',$value)).'">'.$value.'</a>';
 	}
 	return $value;
 }
@@ -266,18 +267,18 @@ function get_input($inq,$table,$type,$key,$value){
 	switch( $type ){
 		case 'real':
 		case 'int':
-			return '<input type="number" class="form-control" name="key['._($key).']" id="key_'._($key).'" placeholder="'._($key).'" value="'._($value).'">';
+			return '<input type="number" class="form-control" name="key['.__($key).']" id="key_'.__($key).'" placeholder="'.__($key).'" value="'.__($value).'">';
 		break;
 		case 'string':
 			if( is_enum($inq,$i) ){
 				$enum_variants = get_enum_values($table,$key);
-				$out = '<select class="form-control" name="key['._($key).']" id="key_'._($key).'">';
+				$out = '<select class="form-control" name="key['.__($key).']" id="key_'.__($key).'">';
 				foreach($enum_variants as $name){
 					$out.='<option '.($value==$name?'selected':'').' value="'.$name.'">'.$name.'</option>';
 				}
 				$out.='</select>';
 			}else{
-				$out='<input type="text" class="form-control" name="key['._($key).']" id="key_'._($key).'" placeholder="'._($key).'" value="'._($value).'">';
+				$out='<input type="text" class="form-control" name="key['.__($key).']" id="key_'.__($key).'" placeholder="'.__($key).'" value="'.__($value).'">';
 			}
 			return $out;
 		break;
@@ -338,6 +339,7 @@ function ekran($value){
 	global $db;
 	return '\''.$db->_($value).'\'';
 }
+
 
 /**
  * SQL Formatter is a collection of utilities for debugging SQL queries.
@@ -1431,18 +1433,26 @@ $action = (isset($_REQUEST['action']) and in_array($_REQUEST['action'],array('in
 
 $data = array('error'=>'','connect'=>'');
 
-$_REQUEST = array_merge($config,$_REQUEST,$_SESSION);
+$_REQUEST = array_merge($_SESSION,$_REQUEST,$config);
 
 $sql = '';
 $database_selected  = false;
 $connected  = false;
 
-if( isset($_COOKIE['key_man']) ){
-	list($config['host'],$config['username'],$config['password']) = decode($_COOKIE['key_man']);
+if( isset($_COOKIE[$conifg['cookie']]) ){
+	list($config['host'],$config['username'],$config['password']) = _decode($_COOKIE[$conifg['cookie']]);
 	if( $db->connect($config['host'],$config['username'],$config['password']) ){
 		$connected = true;
 	}else{
 		$data['error'] = $db->error();
+	}
+}else{
+	if( isset($_SESSION['host']) and isset($_SESSION['username']) and isset($_SESSION['password']) ){
+		if( $db->connect($_SESSION['host'],$_SESSION['username'],$_SESSION['password']) ){
+			$connected = true;
+		}else{
+			$data['error'] = $db->error();
+		}
 	}
 }
 
@@ -1570,7 +1580,13 @@ switch( $action ){
 	case 'connect':
 		$db->disconnect();
 		if( $db->connect($_REQUEST['host'],$_REQUEST['username'],$_REQUEST['password']) ){
-			setcookie('key_man',encode($_REQUEST['host'],$_REQUEST['username'],$_REQUEST['password']));
+			if( !empty($_REQUEST['remember']) ){
+				setcookie($conifg['cookie'],_encode($_REQUEST['host'],$_REQUEST['username'],$_REQUEST['password']));
+			}else{
+				$_SESSION['host'] = $_REQUEST['host'];
+				$_SESSION['username'] = $_REQUEST['username'];
+				$_SESSION['password'] = $_REQUEST['password'];
+			}
 			$action = 'index';
 			header('location:?action=index');
 			exit();
@@ -1578,12 +1594,19 @@ switch( $action ){
 			if( !empty($_REQUEST['through']) ){
 				$connect_data = try_connect_through($_REQUEST['through']);
 				if( $connect_data ){
-					setcookie('key_man',encode($connect_data['host'],$connect_data['username'],$connect_data['password']));
+					if( !empty($_REQUEST['remember']) ){
+						setcookie($conifg['cookie'],_encode($connect_data['host'],$connect_data['username'],$connect_data['password']));
+					}else{
+						$_SESSION['host'] = $connect_data['host'];
+						$_SESSION['username'] = $connect_data['username'];
+						$_SESSION['password'] = $connect_data['password'];
+					}
 					header('location:?action=index');
 					exit();
 				}
 			}
-			setcookie('key_man','');
+			$_SESSION['host'] = $_SESSION['username'] = $_SESSION['password'] = '';
+			setcookie($conifg['cookie'],'');
 			$data['error'] = $db->error();
 			$action = 'login';
 		}
@@ -1595,7 +1618,7 @@ switch( $action ){
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 <title>Mini MySQL Admin v<? 
-echo '1.0.2';?></title>
+echo '1.0.5';?></title>
 <meta name="keywords" content="" /> 
 <meta name="description" content=""/>
 <link href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoV2luZG93cykiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OEI3QjNGRDNFMDE1MTFFMzk5NURCNkU3OEQyRTE2QjMiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OEI3QjNGRDRFMDE1MTFFMzk5NURCNkU3OEQyRTE2QjMiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4QjdCM0ZEMUUwMTUxMUUzOTk1REI2RTc4RDJFMTZCMyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo4QjdCM0ZEMkUwMTUxMUUzOTk1REI2RTc4RDJFMTZCMyIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PtZnflQAAAHmSURBVHjaTFJLq3FhFHYOIxORSBJl5DJhgigpycRlxkzKyP+QsZ/BzIAiEyLKnZTcDVwnErkk9vcc63z7WLXXfvZa61nrfda7v+LxuMVi4bwtnU4T8Pl8BKrV6n6/53wYTywW2+12+litVvV6XSKRsJHxeLzb7T4J358fer0e3mAwsBGNRkNk+9t+CK/XCy+aq1Qqn8+n0WgEvt/v8AzD+P1+Pp/vcDhkMhmyvxNutxs4AoEAQ3AkVNNJptMpsMfjQapQKID/jYc4jUYDPhAIwA+HQ7YRsNlsRrvNZvNHgKcidILvdrtsHJjaMW/7Ez2ZTI7HI+HBYEBAp9O53W6cqlgsEoF3Pp+Xy+V6vYb6ZrOpVquBwYQHYTQaPR4PDGd7cVUqlVAolMvlCoWiVCpls9lOp+N0OiG93++32+1Wq4WFcrnc7Xb7c85kMokXoofDYT6fRyIRJK7XKzA8MCIowIoib+OxGsrl8mKxwLKlUmkqlcrn81arNRwOI0LqaQ28XC4nEolsNhsuGLvPZDKIzmYzpHu9Hummjr+EYDAIAdFoFDfq9XpPpxOiWq3W5XJRHf0E7AROIpEAggDyoVAIu2L+G2TEYjFKzd/2hQpMMJlMl8ulUqnQBIqgN9ZVq9U+//B/AgwAFeVfm4b+8bQAAAAASUVORK5CYII=" rel="shortcut icon" type="image/x-icon">
@@ -2017,17 +2040,17 @@ text-align:right;
 <body>
 <div class="header panel-success ">
 	<a href="http://xdsoft.net/miniMySQLAdmin/"><strong>miniMySQLAdmin</strong> <span style="opacity:0.7;">(version:<? 
-echo '1.0.2';?>)</span></a>
+echo '1.0.5';?>)</span></a>
 	<?php if( $connected ){ ?>
-	<a href="?sql=<?php echo _('show databases;'); ?>">Databases</a>
+	<a href="?sql=<?php echo __('show databases;'); ?>">Databases</a>
 	<?php } ?>
 	<?php if( $database_selected ){ ?>
-		<i class="icon icon_db"></i> <a href="?sql=<?php echo _('show tables;');?>"><?php echo $_SESSION['dbname']?></a>
-		<a href="?sql=<?php echo _('show variables;');?>">Variables</a>
+		<i class="icon icon_db"></i> <a href="?sql=<?php echo __('show tables;');?>"><?php echo $_SESSION['dbname']?></a>
+		<a href="?sql=<?php echo __('show variables;');?>">Variables</a>
 		<?php if( $_GET['table'] ){ ?>
-			<a href="?table=<?php echo $_SESSION['table']?>&sql=<?php echo _('SHOW COLUMNS FROM `'.$db->_($_SESSION['table']).'`;');?>">Structure</a>
+			<a href="?table=<?php echo $_SESSION['table']?>&sql=<?php echo __('SHOW COLUMNS FROM `'.$db->_($_SESSION['table']).'`;');?>">Structure</a>
 			<i class="icon icon_table"></i> <a href="?table=<?php echo $_SESSION['table']?>">Data</a>
-			<a href="?table=<?php echo $_SESSION['table']?>&sql=<?php echo _('SHOW INDEX FROM `'.$db->_($_SESSION['table']).'`;');?>">Indexes</a>
+			<a href="?table=<?php echo $_SESSION['table']?>&sql=<?php echo __('SHOW INDEX FROM `'.$db->_($_SESSION['table']).'`;');?>">Indexes</a>
 		<?php }?>
 	<?php } ?>
 
@@ -2071,7 +2094,7 @@ case 'edit':?>
 			<div class="col-sm-offset-3 col-sm-10">
 			  <button type="submit" class="btn btn-primary">&nbsp;&nbsp;&nbsp;Save&nbsp;&nbsp;&nbsp;</button>
 			  <button type="reset" class="btn btn-default">&nbsp;&nbsp;&nbsp;Reset&nbsp;&nbsp;&nbsp;</button>
-			  <button type="button" onclick="document.location='?table=<?php echo _($_GET['table']);?>';" class="btn btn-danger">&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;</button>
+			  <button type="button" onclick="document.location='?table=<?php echo __($_GET['table']);?>';" class="btn btn-danger">&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;</button>
 			</div>
 		</div>
 	</form>
@@ -2115,7 +2138,7 @@ case 'add':?>
 			<div class="col-sm-offset-3 col-sm-10">
 			  <button type="submit" class="btn btn-primary">&nbsp;&nbsp;&nbsp;Save&nbsp;&nbsp;&nbsp;</button>
 			  <button type="reset" class="btn btn-default">&nbsp;&nbsp;&nbsp;Reset&nbsp;&nbsp;&nbsp;</button>
-			  <button type="button" onclick="document.location='?table=<?php echo _($_GET['table']);?>';" class="btn btn-danger">&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;</button>
+			  <button type="button" onclick="document.location='?table=<?php echo __($_GET['table']);?>';" class="btn btn-danger">&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;</button>
 			</div>
 		</div>
 	</form>
