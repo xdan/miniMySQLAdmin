@@ -1,5 +1,5 @@
 <?php
-include 'functions.php';
+include 'includes/functions.php';
 $mysqladmin = file_get_contents('index.php');
 $mysqladmin = preg_replace_callback('#include \'(.*)\';#Uui',function($match){
 	$file = file_get_contents($match[1]);
