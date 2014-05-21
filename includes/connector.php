@@ -35,10 +35,13 @@ class db{
 	function q($sql){
 		$sqls = explode($this->separator,$sql);
 		$this->error = '';
-		foreach($sqls as $sql1){
-			$inq = mysql_query($sql1,$this->connid);
-			if(!$inq)
-				$this->error.=mysql_error()."\n";
+		$inq = false;
+		foreach($sqls as $query){
+			if( trim($query) ){
+				$inq = mysql_query($query,$this->connid);
+				if(!$inq)
+					$this->error.=mysql_error()."\n";
+			}
 		}
 		$this->last_query = $sql;
 		return $inq;
