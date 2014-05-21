@@ -17,6 +17,7 @@ class db{
 	private $connid = null;
 	private $error = '';
 	private $last_query = '';
+	public $separator = ';';
 	function error(){
 		return $this->error;
 	}
@@ -46,10 +47,14 @@ class db{
 		return false;
 	}
 	function q($sql){
-		$inq = mysql_query($sql,$this->connid);
+		$sqls = explode($this->separator,$sql);
+		$this->error = '';
+		foreach($sqls as $sql1){
+			$inq = mysql_query($sql1,$this->connid);
+			if(!$inq)
+				$this->error.=mysql_error()."\n";
+		}
 		$this->last_query = $sql;
-		if(!$inq)
-			$this->error = mysql_error();
 		return $inq;
 	}
 	
@@ -2215,7 +2220,7 @@ case 'login':?>
 <?break;
 case 'index':?>
 <div class="workbox">
-	<form role="form" method="get">
+	<form role="form" method="post">
 		<pre class="already_executed"><?php echo SqlFormatter::format(_trim($db->last()));?></pre>
 		<div class="form-group">
 			<textarea id="sql" name="sql" placeholder="SQL..." class="form-control" rows="5"><?php echo htmlspecialchars(_trim($sql));?></textarea>

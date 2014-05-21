@@ -3,6 +3,7 @@ class db{
 	private $connid = null;
 	private $error = '';
 	private $last_query = '';
+	public $separator = ';';
 	function error(){
 		return $this->error;
 	}
@@ -32,10 +33,14 @@ class db{
 		return false;
 	}
 	function q($sql){
-		$inq = mysql_query($sql,$this->connid);
+		$sqls = explode($this->separator,$sql);
+		$this->error = '';
+		foreach($sqls as $sql1){
+			$inq = mysql_query($sql1,$this->connid);
+			if(!$inq)
+				$this->error.=mysql_error()."\n";
+		}
 		$this->last_query = $sql;
-		if(!$inq)
-			$this->error = mysql_error();
 		return $inq;
 	}
 	

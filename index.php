@@ -201,7 +201,7 @@ case 'login':?>
 <?break;
 case 'index':?>
 <div class="workbox">
-	<form role="form" method="get">
+	<form role="form" method="post">
 		<pre class="already_executed"><?php echo SqlFormatter::format(_trim($db->last()));?></pre>
 		<div class="form-group">
 			<textarea id="sql" name="sql" placeholder="SQL..." class="form-control" rows="5"><?php echo htmlspecialchars(_trim($sql));?></textarea>
