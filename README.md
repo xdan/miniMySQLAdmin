@@ -7,6 +7,19 @@ You can use as a full version for this you need to unpack the archive into a fol
 
 [Homepage][3]
 
+![ScreenShot](http://xdsoft.net/images/products/minimysqladmin/1.png)
+
+![ScreenShot](http://xdsoft.net/images/products/minimysqladmin/settings.png)
+
+![ScreenShot](http://xdsoft.net/images/products/minimysqladmin/showdatabase.png)
+
+![ScreenShot](http://xdsoft.net/images/products/minimysqladmin/showtables.png)
+
+![ScreenShot](http://xdsoft.net/images/products/minimysqladmin/groupopeartion.png)
+
+![ScreenShot](http://xdsoft.net/images/products/minimysqladmin/editrecord.png)
+
+
 Used scripts
 ------------
 
@@ -15,4 +28,4 @@ Used scripts
 
 [1]:http://github.com/jdorn/sql-formatter
 [2]:https://github.com/marijnh/CodeMirror/
-[3]:https://github.com/marijnh/CodeMirror/
+[3]:http://xdsoft.net/minimysqladmin.html
