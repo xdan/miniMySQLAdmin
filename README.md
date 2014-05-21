@@ -1,9 +1,11 @@
-miniMySQLAdmin
+miniMySQLAdmin - lightweight analogue phpMyAdmin
 ==============
 
 A simplified version of phpMyAdmin. All you need is to download a single file on the server.
 
 You can use as a full version for this you need to unpack the archive into a folder or use alone file mysqladmin.php
+
+[Homepage][3]
 
 Used scripts
 ------------
@@ -13,3 +15,4 @@ Used scripts
 
 [1]:http://github.com/jdorn/sql-formatter
 [2]:https://github.com/marijnh/CodeMirror/
+[3]:https://github.com/marijnh/CodeMirror/
