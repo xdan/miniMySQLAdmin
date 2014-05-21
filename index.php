@@ -253,7 +253,7 @@ case 'index':?>
 			<?php if($_GET['table']){?>
 			<div style="margin:5px 0px;">
 			<?php if( $primary_key ){?>
-				<a class="btn btn-default" onclick="return deleteAllSelected.call(this)" href="?table=<?php echo mysql_field_table($inq, 0)?>&action=delete&key=<?php echo _($primary_key)?>"><i class="icon icon_delete"></i></a>
+				<a class="btn btn-default" onclick="return deleteAllSelected.call(this)" href="?table=<?php echo mysql_field_table($inq, 0)?>&action=delete&key=<?php echo __($primary_key)?>"><i class="icon icon_delete"></i></a>
 			<?php } ?>
 				<a class="btn btn-default"  href="?table=<?php echo mysql_field_table($inq, 0)?>&action=add"><i class="icon icon_add"></i></a>
 			</div>
