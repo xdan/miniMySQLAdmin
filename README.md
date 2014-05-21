@@ -7,6 +7,8 @@ You can use as a full version for this you need to unpack the archive into a fol
 
 [Homepage][3]
 
+[Demo][4]
+
 ![ScreenShot](http://xdsoft.net/images/products/minimysqladmin/1.png)
 
 ![ScreenShot](http://xdsoft.net/images/products/minimysqladmin/settings.png)
@@ -29,3 +31,4 @@ Used scripts
 [1]:http://github.com/jdorn/sql-formatter
 [2]:https://github.com/marijnh/CodeMirror/
 [3]:http://xdsoft.net/minimysqladmin.html
+[4]:http://xdsoft.net/examples/mysqladmin.php
