@@ -57,7 +57,7 @@ function is_limited($sql){
 	return preg_match('#[\s\n\r\t]*limit[\s\n\r\t]+#ui',$sql);
 }
 function is_ordered($sql){
-	return preg_match('#[\s\n\r\t]*order[\s\n\r\t]+by#ui',$sql);
+	return preg_match('#[\s\n\r\t]*order[\s\n\r\t]+by[\s\n\r\t]+([^\s\n\r\t]+)([\s\n\r\t]+|$)#ui',$sql,$list)?preg_replace('#[\'"\s\n\t`]#','',$list[1]):false;
 }
 function is_enum($inq, $i){
 	return strpos(mysql_field_flags($inq, $i), 'enum') !== false;
@@ -86,11 +86,16 @@ function add_to_sql($sql,$name,$value){
 			}
 		break;
 		case 'order':
-			if( is_ordered($sql) ){
+			if( $orderby = is_ordered($sql) ){
 				$sql = preg_replace('#[\s\n\r\t]*order[\s\n\r\t]+by[\s\n\r\t]+[^\s\n\r\t;]+[\s\n\r\t]*#ui',' order by `'.$value.'` ',$sql);
+	
+				if( preg_match('#[\s\n\r\t`]+order[\s\n\r\t`]+by[\s\n\r\t`]+`'.$value.'`[\s\n\r\t`]+(desc|asc)#ui',$sql,$list) and $value==$orderby ){
+					$sql = preg_replace('#( order by `'.$value.'`[\s\n\r\t`]+)(desc|asc)#ui','$1'.(mb_strtolower($list[1])=='desc'?'asc':'desc'),$sql);
+				}else
+					$sql = preg_replace('#( order by `'.$value.'`[\s\n\r\t`]+)#ui','$1desc ',$sql);
 			}else{
 				if( is_limited($sql) ){
-					$sql=preg_replace('#[\s\n\r\t]*limit[\s\n\r\t]+#ui',' order by `'.$value.'` limit ',$sql);
+					$sql=preg_replace('#[\s\n\r\t]*limit[\s\n\r\t]+#ui',' order by `'.$value.'` asc  limit ',$sql);
 				}else{
 					$sql.='order by '.$value.' ';
 				}
@@ -202,4 +207,9 @@ function try_connect_through($system){
 function ekran($value){
 	global $db;
 	return '\''.$db->_($value).'\'';
+}
+
+function get_primary_field( $table ){
+	global $db;
+	return $db->row("SHOW KEYS FROM `".$db->_($table)."` WHERE Key_name = 'PRIMARY'",'Column_name');
 }

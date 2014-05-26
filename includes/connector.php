@@ -55,7 +55,7 @@ class db{
 		$inq = $this->q($sql);
 		if( $inq ){
 			$row = $this->__($inq);
-			return ($only === false or !isset($row[$only]))?$row:$row[$only];
+			return ( $only === false )?$row: isset($row[$only])?$row[$only]:false;
 		}else{
 			return false;
 		}
@@ -108,7 +108,7 @@ class db{
 		$sql = 'insert into '.$table.' set '.$this->arrayToSet($array);
 		$inq = $this->q($sql);
 		if( $inq )
-			return mysql_insert_id();
+			return mysql_insert_id($this->connid);
 		else
 			return false;
 	}

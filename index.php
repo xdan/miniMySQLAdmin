@@ -78,7 +78,8 @@ case 'edit':?>
 		}?>
 		<div class="form-group">
 			<div class="col-sm-offset-3 col-sm-10">
-			  <button type="submit" class="btn btn-primary">&nbsp;&nbsp;&nbsp;Save&nbsp;&nbsp;&nbsp;</button>
+			  <button type="submit" name="save" class="btn btn-primary">&nbsp;&nbsp;&nbsp;Save&nbsp;&nbsp;&nbsp;</button>
+			  <button type="submit" name="close" class="btn btn-success">&nbsp;&nbsp;&nbsp;Save&amp;Close&nbsp;&nbsp;&nbsp;</button>
 			  <button type="reset" class="btn btn-default">&nbsp;&nbsp;&nbsp;Reset&nbsp;&nbsp;&nbsp;</button>
 			  <button type="button" onclick="document.location='?table=<?php echo __($_GET['table']);?>';" class="btn btn-danger">&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;</button>
 			</div>
@@ -86,7 +87,8 @@ case 'edit':?>
 	</form>
   </div>
 </div>
-<?break;
+<?php
+break;
 case 'add':?>
 <div class="edit panel panel-info">
   <div class="panel-heading">Add Record</div>
@@ -122,7 +124,8 @@ case 'add':?>
 		}?>
 		<div class="form-group">
 			<div class="col-sm-offset-3 col-sm-10">
-			  <button type="submit" class="btn btn-primary">&nbsp;&nbsp;&nbsp;Save&nbsp;&nbsp;&nbsp;</button>
+			  <button type="submit" name="save" class="btn btn-primary">&nbsp;&nbsp;&nbsp;Save&nbsp;&nbsp;&nbsp;</button>
+			  <button type="submit" name="close" class="btn btn-success">&nbsp;&nbsp;&nbsp;Save&amp;Close&nbsp;&nbsp;&nbsp;</button>
 			  <button type="reset" class="btn btn-default">&nbsp;&nbsp;&nbsp;Reset&nbsp;&nbsp;&nbsp;</button>
 			  <button type="button" onclick="document.location='?table=<?php echo __($_GET['table']);?>';" class="btn btn-danger">&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;</button>
 			</div>
@@ -130,7 +133,8 @@ case 'add':?>
 	</form>
   </div>
 </div>
-<?break;
+<?php
+break;
 case 'login':?>
 <div class="login panel panel-info">
   <div class="panel-heading">DB Connection Settings</div>
@@ -202,6 +206,7 @@ case 'login':?>
 case 'index':?>
 <div class="workbox">
 	<form role="form" method="post">
+		<input type="hidden" name="action" value="index">
 		<pre class="already_executed"><?php echo SqlFormatter::format(_trim($db->last()));?></pre>
 		<div class="form-group">
 			<textarea id="sql" name="sql" placeholder="SQL..." class="form-control" rows="5"><?php echo htmlspecialchars(_trim($sql));?></textarea>

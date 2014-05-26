@@ -34,27 +34,46 @@ switch( $action ){
 				if( isset($_POST['key']) and is_array($_POST['key']) and count($_POST['key']) ){
 					if( isset($_REQUEST['table']) and isset($_REQUEST['primary_key']) and isset($_REQUEST['primary_value']) ){
 						$inq = $db->update($_GET['table'],$_POST['key'],'`'.$db->_($_REQUEST['primary_key']).'`=\''.$db->_($_REQUEST['primary_value']).'\'');
-						if(!$inq)
+						if(!$inq){
 							$data['error'] = $db->error();
+							$action = 'edit';
+							$inq = $db->q($q = 'select * from `'.$db->_($_GET['table']).'` where `'.$db->_($_REQUEST['primary_key']).'`=\''.$db->_($_REQUEST['primary_value']).'\'');
+						}
 					}elseif( isset($_REQUEST['table']) ){
 						$inq = $db->insert($_GET['table'],$_POST['key']);
+						if( $inq ){
+							$_REQUEST['primary_key'] = get_primary_field($_GET['table']);
+							if( $_REQUEST['primary_key'] )
+								$_REQUEST['primary_value'] = $inq;
+						}else{
+							$data['error'] = $db->error();
+							$action = 'add';
+							$inq = $db->q($q = 'select * from `'.$db->_($_GET['table']).'` limit 1');
+						}
 					}
 				}
-
-				$sql = 'select * FROM '.$db->_($_REQUEST['table']);
+				if( $inq && !$data['error'] ){
+					if( isset($_REQUEST['close']) or !isset($_REQUEST['save']) ){
+						$sql = 'select * FROM '.$db->_($_REQUEST['table']);
+						
+						$action = 'index';
+						if( is_select($sql) and !is_limited($sql) )
+							$sql = add_to_sql($sql,'limit',$config['count_on_page']);
+						
+						$time = microtime(true);
+							
+						$inq = $db->q( $sql );
+						
+						$endtime = microtime(true) - $time;
+						
+						if( $inq and is_select($sql) and mysql_field_table($inq,0) )
+							$_GET['table'] = $_SESSION['table'] = $_REQUEST['table'] = mysql_field_table($inq,0);
+					}else{
+						$action = 'edit';
+						$inq = $db->q($q = 'select * from `'.$db->_($_GET['table']).'` where `'.$db->_($_REQUEST['primary_key']).'`=\''.$db->_($_REQUEST['primary_value']).'\'');
+					}
+				}
 				$database_selected = true;
-				$action = 'index';
-				if( is_select($sql) and !is_limited($sql) )
-					$sql = add_to_sql($sql,'limit',$config['count_on_page']);
-				
-				$time = microtime(true);
-					
-				$inq = $db->q( $sql );
-				
-				$endtime = microtime(true) - $time;
-				
-				if( $inq and is_select($sql) and mysql_field_table($inq,0) )
-					$_GET['table'] = $_SESSION['table'] = $_REQUEST['table'] = mysql_field_table($inq,0);
 			}
 		}else{
 			$data['error'] = $db->error();

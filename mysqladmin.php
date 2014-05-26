@@ -69,7 +69,7 @@ class db{
 		$inq = $this->q($sql);
 		if( $inq ){
 			$row = $this->__($inq);
-			return ($only === false or !isset($row[$only]))?$row:$row[$only];
+			return ( $only === false )?$row: isset($row[$only])?$row[$only]:false;
 		}else{
 			return false;
 		}
@@ -122,7 +122,7 @@ class db{
 		$sql = 'insert into '.$table.' set '.$this->arrayToSet($array);
 		$inq = $this->q($sql);
 		if( $inq )
-			return mysql_insert_id();
+			return mysql_insert_id($this->connid);
 		else
 			return false;
 	}
@@ -201,7 +201,7 @@ function is_limited($sql){
 	return preg_match('#[\s\n\r\t]*limit[\s\n\r\t]+#ui',$sql);
 }
 function is_ordered($sql){
-	return preg_match('#[\s\n\r\t]*order[\s\n\r\t]+by#ui',$sql);
+	return preg_match('#[\s\n\r\t]*order[\s\n\r\t]+by[\s\n\r\t]+([^\s\n\r\t]+)([\s\n\r\t]+|$)#ui',$sql,$list)?preg_replace('#[\'"\s\n\t`]#','',$list[1]):false;
 }
 function is_enum($inq, $i){
 	return strpos(mysql_field_flags($inq, $i), 'enum') !== false;
@@ -230,11 +230,16 @@ function add_to_sql($sql,$name,$value){
 			}
 		break;
 		case 'order':
-			if( is_ordered($sql) ){
+			if( $orderby = is_ordered($sql) ){
 				$sql = preg_replace('#[\s\n\r\t]*order[\s\n\r\t]+by[\s\n\r\t]+[^\s\n\r\t;]+[\s\n\r\t]*#ui',' order by `'.$value.'` ',$sql);
+	
+				if( preg_match('#[\s\n\r\t`]+order[\s\n\r\t`]+by[\s\n\r\t`]+`'.$value.'`[\s\n\r\t`]+(desc|asc)#ui',$sql,$list) and $value==$orderby ){
+					$sql = preg_replace('#( order by `'.$value.'`[\s\n\r\t`]+)(desc|asc)#ui','$1'.(mb_strtolower($list[1])=='desc'?'asc':'desc'),$sql);
+				}else
+					$sql = preg_replace('#( order by `'.$value.'`[\s\n\r\t`]+)#ui','$1desc ',$sql);
 			}else{
 				if( is_limited($sql) ){
-					$sql=preg_replace('#[\s\n\r\t]*limit[\s\n\r\t]+#ui',' order by `'.$value.'` limit ',$sql);
+					$sql=preg_replace('#[\s\n\r\t]*limit[\s\n\r\t]+#ui',' order by `'.$value.'` asc  limit ',$sql);
 				}else{
 					$sql.='order by '.$value.' ';
 				}
@@ -346,6 +351,11 @@ function try_connect_through($system){
 function ekran($value){
 	global $db;
 	return '\''.$db->_($value).'\'';
+}
+
+function get_primary_field( $table ){
+	global $db;
+	return $db->row("SHOW KEYS FROM `".$db->_($table)."` WHERE Key_name = 'PRIMARY'",'Column_name');
 }
 
 
@@ -1471,27 +1481,46 @@ switch( $action ){
 				if( isset($_POST['key']) and is_array($_POST['key']) and count($_POST['key']) ){
 					if( isset($_REQUEST['table']) and isset($_REQUEST['primary_key']) and isset($_REQUEST['primary_value']) ){
 						$inq = $db->update($_GET['table'],$_POST['key'],'`'.$db->_($_REQUEST['primary_key']).'`=\''.$db->_($_REQUEST['primary_value']).'\'');
-						if(!$inq)
+						if(!$inq){
 							$data['error'] = $db->error();
+							$action = 'edit';
+							$inq = $db->q($q = 'select * from `'.$db->_($_GET['table']).'` where `'.$db->_($_REQUEST['primary_key']).'`=\''.$db->_($_REQUEST['primary_value']).'\'');
+						}
 					}elseif( isset($_REQUEST['table']) ){
 						$inq = $db->insert($_GET['table'],$_POST['key']);
+						if( $inq ){
+							$_REQUEST['primary_key'] = get_primary_field($_GET['table']);
+							if( $_REQUEST['primary_key'] )
+								$_REQUEST['primary_value'] = $inq;
+						}else{
+							$data['error'] = $db->error();
+							$action = 'add';
+							$inq = $db->q($q = 'select * from `'.$db->_($_GET['table']).'` limit 1');
+						}
 					}
 				}
-
-				$sql = 'select * FROM '.$db->_($_REQUEST['table']);
+				if( $inq && !$data['error'] ){
+					if( isset($_REQUEST['close']) or !isset($_REQUEST['save']) ){
+						$sql = 'select * FROM '.$db->_($_REQUEST['table']);
+						
+						$action = 'index';
+						if( is_select($sql) and !is_limited($sql) )
+							$sql = add_to_sql($sql,'limit',$config['count_on_page']);
+						
+						$time = microtime(true);
+							
+						$inq = $db->q( $sql );
+						
+						$endtime = microtime(true) - $time;
+						
+						if( $inq and is_select($sql) and mysql_field_table($inq,0) )
+							$_GET['table'] = $_SESSION['table'] = $_REQUEST['table'] = mysql_field_table($inq,0);
+					}else{
+						$action = 'edit';
+						$inq = $db->q($q = 'select * from `'.$db->_($_GET['table']).'` where `'.$db->_($_REQUEST['primary_key']).'`=\''.$db->_($_REQUEST['primary_value']).'\'');
+					}
+				}
 				$database_selected = true;
-				$action = 'index';
-				if( is_select($sql) and !is_limited($sql) )
-					$sql = add_to_sql($sql,'limit',$config['count_on_page']);
-				
-				$time = microtime(true);
-					
-				$inq = $db->q( $sql );
-				
-				$endtime = microtime(true) - $time;
-				
-				if( $inq and is_select($sql) and mysql_field_table($inq,0) )
-					$_GET['table'] = $_SESSION['table'] = $_REQUEST['table'] = mysql_field_table($inq,0);
 			}
 		}else{
 			$data['error'] = $db->error();
@@ -1626,7 +1655,7 @@ switch( $action ){
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 <title>Mini MySQL Admin v<? 
-echo '1.1.1';?></title>
+echo '1.1.3';?></title>
 <meta name="keywords" content="" /> 
 <meta name="description" content=""/>
 <link href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoV2luZG93cykiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OEI3QjNGRDNFMDE1MTFFMzk5NURCNkU3OEQyRTE2QjMiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OEI3QjNGRDRFMDE1MTFFMzk5NURCNkU3OEQyRTE2QjMiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4QjdCM0ZEMUUwMTUxMUUzOTk1REI2RTc4RDJFMTZCMyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo4QjdCM0ZEMkUwMTUxMUUzOTk1REI2RTc4RDJFMTZCMyIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PtZnflQAAAHmSURBVHjaTFJLq3FhFHYOIxORSBJl5DJhgigpycRlxkzKyP+QsZ/BzIAiEyLKnZTcDVwnErkk9vcc63z7WLXXfvZa61nrfda7v+LxuMVi4bwtnU4T8Pl8BKrV6n6/53wYTywW2+12+litVvV6XSKRsJHxeLzb7T4J358fer0e3mAwsBGNRkNk+9t+CK/XCy+aq1Qqn8+n0WgEvt/v8AzD+P1+Pp/vcDhkMhmyvxNutxs4AoEAQ3AkVNNJptMpsMfjQapQKID/jYc4jUYDPhAIwA+HQ7YRsNlsRrvNZvNHgKcidILvdrtsHJjaMW/7Ez2ZTI7HI+HBYEBAp9O53W6cqlgsEoF3Pp+Xy+V6vYb6ZrOpVquBwYQHYTQaPR4PDGd7cVUqlVAolMvlCoWiVCpls9lOp+N0OiG93++32+1Wq4WFcrnc7Xb7c85kMokXoofDYT6fRyIRJK7XKzA8MCIowIoib+OxGsrl8mKxwLKlUmkqlcrn81arNRwOI0LqaQ28XC4nEolsNhsuGLvPZDKIzmYzpHu9Hummjr+EYDAIAdFoFDfq9XpPpxOiWq3W5XJRHf0E7AROIpEAggDyoVAIu2L+G2TEYjFKzd/2hQpMMJlMl8ulUqnQBIqgN9ZVq9U+//B/AgwAFeVfm4b+8bQAAAAASUVORK5CYII=" rel="shortcut icon" type="image/x-icon">
@@ -2048,7 +2077,7 @@ text-align:right;
 <body>
 <div class="header panel-success ">
 	<a href="http://xdsoft.net/miniMySQLAdmin/"><strong>miniMySQLAdmin</strong> <span style="opacity:0.7;">(version:<? 
-echo '1.1.1';?>)</span></a>
+echo '1.1.3';?>)</span></a>
 	<?php if( $connected ){ ?>
 	<a href="?sql=<?php echo __('show databases;'); ?>">Databases</a>
 	<?php } ?>
@@ -2100,7 +2129,8 @@ case 'edit':?>
 		}?>
 		<div class="form-group">
 			<div class="col-sm-offset-3 col-sm-10">
-			  <button type="submit" class="btn btn-primary">&nbsp;&nbsp;&nbsp;Save&nbsp;&nbsp;&nbsp;</button>
+			  <button type="submit" name="save" class="btn btn-primary">&nbsp;&nbsp;&nbsp;Save&nbsp;&nbsp;&nbsp;</button>
+			  <button type="submit" name="close" class="btn btn-success">&nbsp;&nbsp;&nbsp;Save&amp;Close&nbsp;&nbsp;&nbsp;</button>
 			  <button type="reset" class="btn btn-default">&nbsp;&nbsp;&nbsp;Reset&nbsp;&nbsp;&nbsp;</button>
 			  <button type="button" onclick="document.location='?table=<?php echo __($_GET['table']);?>';" class="btn btn-danger">&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;</button>
 			</div>
@@ -2108,7 +2138,8 @@ case 'edit':?>
 	</form>
   </div>
 </div>
-<?break;
+<?php
+break;
 case 'add':?>
 <div class="edit panel panel-info">
   <div class="panel-heading">Add Record</div>
@@ -2144,7 +2175,8 @@ case 'add':?>
 		}?>
 		<div class="form-group">
 			<div class="col-sm-offset-3 col-sm-10">
-			  <button type="submit" class="btn btn-primary">&nbsp;&nbsp;&nbsp;Save&nbsp;&nbsp;&nbsp;</button>
+			  <button type="submit" name="save" class="btn btn-primary">&nbsp;&nbsp;&nbsp;Save&nbsp;&nbsp;&nbsp;</button>
+			  <button type="submit" name="close" class="btn btn-success">&nbsp;&nbsp;&nbsp;Save&amp;Close&nbsp;&nbsp;&nbsp;</button>
 			  <button type="reset" class="btn btn-default">&nbsp;&nbsp;&nbsp;Reset&nbsp;&nbsp;&nbsp;</button>
 			  <button type="button" onclick="document.location='?table=<?php echo __($_GET['table']);?>';" class="btn btn-danger">&nbsp;&nbsp;&nbsp;Cancel&nbsp;&nbsp;&nbsp;</button>
 			</div>
@@ -2152,7 +2184,8 @@ case 'add':?>
 	</form>
   </div>
 </div>
-<?break;
+<?php
+break;
 case 'login':?>
 <div class="login panel panel-info">
   <div class="panel-heading">DB Connection Settings</div>
@@ -2224,6 +2257,7 @@ case 'login':?>
 case 'index':?>
 <div class="workbox">
 	<form role="form" method="post">
+		<input type="hidden" name="action" value="index">
 		<pre class="already_executed"><?php echo SqlFormatter::format(_trim($db->last()));?></pre>
 		<div class="form-group">
 			<textarea id="sql" name="sql" placeholder="SQL..." class="form-control" rows="5"><?php echo htmlspecialchars(_trim($sql));?></textarea>
