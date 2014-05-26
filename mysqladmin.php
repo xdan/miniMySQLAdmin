@@ -190,7 +190,7 @@ function analize($sql,$value,$key,$primary,$table){
 }
 function analize_header($sql,$value,$primary,$table){
 	if( is_select($sql) ){
-		return ($primary&&$table?'<input onclick="toggleAll.call();" type="checkbox" name="header_value" value="'.$value.'"> ':'').'<a href="?sql='.__(add_to_sql($sql,'order',$value)).'">'.$value.'</a>';
+		return ($primary&&$table?'<input onclick="toggleAll.call();" type="checkbox" name="header_value" value="'.__($value).'"> ':'').'<a href="?sql='.rawurlencode(add_to_sql($sql,'order',$value)).'">'.htmlspecialchars($value).'</a>';
 	}
 	return $value;
 }
@@ -1626,7 +1626,7 @@ switch( $action ){
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 <title>Mini MySQL Admin v<? 
-echo '1.1.0';?></title>
+echo '1.1.1';?></title>
 <meta name="keywords" content="" /> 
 <meta name="description" content=""/>
 <link href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoV2luZG93cykiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OEI3QjNGRDNFMDE1MTFFMzk5NURCNkU3OEQyRTE2QjMiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OEI3QjNGRDRFMDE1MTFFMzk5NURCNkU3OEQyRTE2QjMiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4QjdCM0ZEMUUwMTUxMUUzOTk1REI2RTc4RDJFMTZCMyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo4QjdCM0ZEMkUwMTUxMUUzOTk1REI2RTc4RDJFMTZCMyIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PtZnflQAAAHmSURBVHjaTFJLq3FhFHYOIxORSBJl5DJhgigpycRlxkzKyP+QsZ/BzIAiEyLKnZTcDVwnErkk9vcc63z7WLXXfvZa61nrfda7v+LxuMVi4bwtnU4T8Pl8BKrV6n6/53wYTywW2+12+litVvV6XSKRsJHxeLzb7T4J358fer0e3mAwsBGNRkNk+9t+CK/XCy+aq1Qqn8+n0WgEvt/v8AzD+P1+Pp/vcDhkMhmyvxNutxs4AoEAQ3AkVNNJptMpsMfjQapQKID/jYc4jUYDPhAIwA+HQ7YRsNlsRrvNZvNHgKcidILvdrtsHJjaMW/7Ez2ZTI7HI+HBYEBAp9O53W6cqlgsEoF3Pp+Xy+V6vYb6ZrOpVquBwYQHYTQaPR4PDGd7cVUqlVAolMvlCoWiVCpls9lOp+N0OiG93++32+1Wq4WFcrnc7Xb7c85kMokXoofDYT6fRyIRJK7XKzA8MCIowIoib+OxGsrl8mKxwLKlUmkqlcrn81arNRwOI0LqaQ28XC4nEolsNhsuGLvPZDKIzmYzpHu9Hummjr+EYDAIAdFoFDfq9XpPpxOiWq3W5XJRHf0E7AROIpEAggDyoVAIu2L+G2TEYjFKzd/2hQpMMJlMl8ulUqnQBIqgN9ZVq9U+//B/AgwAFeVfm4b+8bQAAAAASUVORK5CYII=" rel="shortcut icon" type="image/x-icon">
@@ -2048,7 +2048,7 @@ text-align:right;
 <body>
 <div class="header panel-success ">
 	<a href="http://xdsoft.net/miniMySQLAdmin/"><strong>miniMySQLAdmin</strong> <span style="opacity:0.7;">(version:<? 
-echo '1.1.0';?>)</span></a>
+echo '1.1.1';?>)</span></a>
 	<?php if( $connected ){ ?>
 	<a href="?sql=<?php echo __('show databases;'); ?>">Databases</a>
 	<?php } ?>

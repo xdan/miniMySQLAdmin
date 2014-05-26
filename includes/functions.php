@@ -46,7 +46,7 @@ function analize($sql,$value,$key,$primary,$table){
 }
 function analize_header($sql,$value,$primary,$table){
 	if( is_select($sql) ){
-		return ($primary&&$table?'<input onclick="toggleAll.call();" type="checkbox" name="header_value" value="'.$value.'"> ':'').'<a href="?sql='.__(add_to_sql($sql,'order',$value)).'">'.$value.'</a>';
+		return ($primary&&$table?'<input onclick="toggleAll.call();" type="checkbox" name="header_value" value="'.__($value).'"> ':'').'<a href="?sql='.rawurlencode(add_to_sql($sql,'order',$value)).'">'.htmlspecialchars($value).'</a>';
 	}
 	return $value;
 }
