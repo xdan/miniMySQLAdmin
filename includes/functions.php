@@ -88,11 +88,12 @@ function add_to_sql($sql,$name,$value){
 		case 'order':
 			if( $orderby = is_ordered($sql) ){
 				$sql = preg_replace('#[\s\n\r\t]*order[\s\n\r\t]+by[\s\n\r\t]+[^\s\n\r\t;]+[\s\n\r\t]*#ui',' order by `'.$value.'` ',$sql);
-	
-				if( preg_match('#[\s\n\r\t`]+order[\s\n\r\t`]+by[\s\n\r\t`]+`'.$value.'`[\s\n\r\t`]+(desc|asc)#ui',$sql,$list) and $value==$orderby ){
-					$sql = preg_replace('#( order by `'.$value.'`[\s\n\r\t`]+)(desc|asc)#ui','$1'.(mb_strtolower($list[1])=='desc'?'asc':'desc'),$sql);
-				}else
-					$sql = preg_replace('#( order by `'.$value.'`[\s\n\r\t`]+)#ui','$1desc ',$sql);
+				if( $value==$orderby ){
+					if( preg_match('#[\s\n\r\t`]+order[\s\n\r\t`]+by[\s\n\r\t`]+`'.$value.'`[\s\n\r\t`]+(desc|asc)#ui',$sql,$list) ){
+						$sql = preg_replace('#( order by `'.$value.'`[\s\n\r\t`]+)(desc|asc)#ui','$1'.(mb_strtolower($list[1])=='desc'?'asc':'desc'),$sql);
+					}else
+						$sql = preg_replace('#( order by `'.$value.'`[\s\n\r\t`]+)#ui','$1desc ',$sql);
+				}
 			}else{
 				if( is_limited($sql) ){
 					$sql=preg_replace('#[\s\n\r\t]*limit[\s\n\r\t]+#ui',' order by `'.$value.'` asc  limit ',$sql);
