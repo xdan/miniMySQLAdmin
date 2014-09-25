@@ -54,7 +54,7 @@ switch( $action ){
 				}
 				if( $inq && !$data['error'] ){
 					if( isset($_REQUEST['close']) or !isset($_REQUEST['save']) ){
-						$sql = 'select * FROM '.$db->_($_REQUEST['table']);
+						$sql = 'select * FROM `'.$db->_($_REQUEST['table'].'`');
 						
 						$action = 'index';
 						if( is_select($sql) and !is_limited($sql) )
@@ -91,7 +91,7 @@ switch( $action ){
 					}
 					if($inq){
 						$action = 'index';
-						$sql = 'select * FROM '.$db->_($_REQUEST['table']);
+						$sql = 'select * FROM `'.$db->_($_REQUEST['table']).'`';
 						$database_selected = true;
 						$action = 'index';
 						if( is_select($sql) and !is_limited($sql) )
@@ -138,9 +138,9 @@ switch( $action ){
 				if( $db->selectdb($_REQUEST['dbname']) ){
 					if( isset($_GET['table']) ){
 						$_SESSION['table'] = $_REQUEST['table'];
-						$sql = $_REQUEST['sql']? $_REQUEST['sql']:'select * FROM '.$db->_($_REQUEST['table']);
+						$sql = $_REQUEST['sql']? $_REQUEST['sql']:'select * FROM `'.$db->_($_REQUEST['table']).'`';
 					}else
-						$sql = $_REQUEST['sql']? $_REQUEST['sql']:'SHOW TABLES FROM '.$db->_($_REQUEST['dbname']);
+						$sql = $_REQUEST['sql']? $_REQUEST['sql']:'SHOW TABLES FROM `'.$db->_($_REQUEST['dbname']).'`';
 					
 					$_SESSION['dbname'] = $_REQUEST['dbname'];
 					
