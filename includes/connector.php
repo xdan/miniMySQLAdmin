@@ -125,7 +125,6 @@ class db{
 	
 	function update($table,$array,$condition){
 		$sql = 'update '.$table.' set '.$this->arrayToSet($array).' where '.$this->condition($condition);
-		exit(htmlspecialchars($sql));
 		return $this->q($sql);
 	}
 	function exists($table,$conditions,$id='id',$order = false,$offset = 0){

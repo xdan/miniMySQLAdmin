@@ -8,14 +8,6 @@ include 'includes/functions.php';
 
 include 'includes/SqlFormatter.php';
 
-if (isset($HTTP_POST_VARS) || isset($HTTP_GET_VARS)) {
-    $_POST = $HTTP_POST_VARS;
-    $_GET = $HTTP_GET_VARS;
-    $_REQUEST = array_merge($_POST,$_GET);
-    $_COOKIE = $HTTP_COOKIE_VARS;
-    $_SERVER = $HTTP_SERVER_VARS;
-}
-
 if( get_magic_quotes_gpc() ){
     if ($_POST){
         $_POST = stripslashesall($_POST);

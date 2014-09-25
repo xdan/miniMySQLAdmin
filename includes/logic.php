@@ -30,9 +30,11 @@ if( isset($_COOKIE[$config['cookie']]) ){
 switch( $action ){
 	case 'save':
 		if( $connected ){
+			
 			if( $db->selectdb($_REQUEST['dbname']) ){
 				if( isset($_POST['key']) and is_array($_POST['key']) and count($_POST['key']) ){
 					if( isset($_REQUEST['table']) and isset($_REQUEST['primary_key']) and isset($_REQUEST['primary_value']) ){
+						
 						$inq = $db->update($_GET['table'],$_POST['key'],'`'.$db->_($_REQUEST['primary_key']).'`=\''.$db->_($_REQUEST['primary_value']).'\'');
 						if(!$inq){
 							$data['error'] = $db->error();

@@ -139,7 +139,6 @@ class db{
 	
 	function update($table,$array,$condition){
 		$sql = 'update '.$table.' set '.$this->arrayToSet($array).' where '.$this->condition($condition);
-		exit(htmlspecialchars($sql));
 		return $this->q($sql);
 	}
 	function exists($table,$conditions,$id='id',$order = false,$offset = 0){
@@ -1467,14 +1466,6 @@ class SqlFormatter
 }
 
 
-if (isset($HTTP_POST_VARS) || isset($HTTP_GET_VARS)) {
-    $_POST = $HTTP_POST_VARS;
-    $_GET = $HTTP_GET_VARS;
-    $_REQUEST = array_merge($_POST,$_GET);
-    $_COOKIE = $HTTP_COOKIE_VARS;
-    $_SERVER = $HTTP_SERVER_VARS;
-}
-
 if( get_magic_quotes_gpc() ){
     if ($_POST){
         $_POST = stripslashesall($_POST);
@@ -1522,9 +1513,11 @@ if( isset($_COOKIE[$config['cookie']]) ){
 switch( $action ){
 	case 'save':
 		if( $connected ){
+			
 			if( $db->selectdb($_REQUEST['dbname']) ){
 				if( isset($_POST['key']) and is_array($_POST['key']) and count($_POST['key']) ){
 					if( isset($_REQUEST['table']) and isset($_REQUEST['primary_key']) and isset($_REQUEST['primary_value']) ){
+						
 						$inq = $db->update($_GET['table'],$_POST['key'],'`'.$db->_($_REQUEST['primary_key']).'`=\''.$db->_($_REQUEST['primary_value']).'\'');
 						if(!$inq){
 							$data['error'] = $db->error();
