@@ -209,7 +209,7 @@ function is_enum($inq, $i){
 
 function get_enum_values( $table, $field ){
    global $db;
-   $type = $db->row( "SHOW COLUMNS FROM {$table} WHERE Field = '{$field}'" ,'Type');
+   $type = $db->row( "SHOW COLUMNS FROM `{$table}` WHERE Field = '{$field}'" ,'Type');
     preg_match('/^enum\((.*)\)$/', $type, $matches);
     foreach( explode(',', $matches[1]) as $value ){
          $enum[] = trim( $value, "'" );
