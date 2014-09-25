@@ -164,8 +164,9 @@ function ssd_deob($String, $Password='dgfdfg234'){
 function _trim($value){
 	return preg_replace(array('#^[\n\r\t\s]+#u','#[\n\r\t\s]+$#u'),'',$value);
 }
-function getPHPCharset( $charset ){
-	return $charset=='cp1251'?'windows-1251':$charset;
+function getPHPCharset( $value,$charset="utf-8" ){
+	$ch = mb_detect_encoding($value);
+	return $ch?$ch:$charset;
 }
 function _encode($host,$user,$password,$charcode){
 	global $config; 
@@ -191,7 +192,7 @@ function analize($sql,$value,$key,$primary,$table){
 		}
 		return $value;
 	}elseif( preg_match('#^select#iu',_trim($sql)) ){
-		return ($table&&$primary?'<input type="checkbox" name="value" value="'.$value.'"> <a style="" onclick="return confirm(\'Are you shure?\')" href="?table='.$table.'&action=delete&key='.__($key).'&value='.__($value).'"><i class="icon icon_delete"></i></a> <a href="?table='.$table.'&action=edit&key='.$key.'&value='.$value.'"><i class="icon icon_edit"></i></a> ':'').htmlspecialchars(mb_substr($value,0,$config['max_str_len'],mb_detect_encoding($value)));
+		return ($table&&$primary?'<input type="checkbox" name="value" value="'.$value.'"> <a style="" onclick="return confirm(\'Are you shure?\')" href="?table='.$table.'&action=delete&key='.__($key).'&value='.__($value).'"><i class="icon icon_delete"></i></a> <a href="?table='.$table.'&action=edit&key='.$key.'&value='.$value.'"><i class="icon icon_edit"></i></a> ':'').htmlspecialchars(mb_substr($value,0,$config['max_str_len'],getPHPCharset($value)));
 	}
 	return $value;
 }
