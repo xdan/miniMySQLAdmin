@@ -8,7 +8,32 @@ include 'includes/functions.php';
 
 include 'includes/SqlFormatter.php';
 
+if (isset($HTTP_POST_VARS) || isset($HTTP_GET_VARS)) {
+    $_POST = $HTTP_POST_VARS;
+    $_GET = $HTTP_GET_VARS;
+    $_REQUEST = array_merge($_POST,$_GET);
+    $_COOKIE = $HTTP_COOKIE_VARS;
+    $_SERVER = $HTTP_SERVER_VARS;
+}
+
+if( get_magic_quotes_gpc() ){
+    if ($_POST){
+        $_POST = stripslashesall($_POST);
+    }
+    if ($_GET){
+    	$_GET = stripslashesall($_GET);
+    }
+    if ($_COOKIE){
+    	$_COOKIE = stripslashesall($_COOKIE);
+    }
+    if ($_REQUEST){
+    	$_REQUEST = stripslashesall($_REQUEST);
+    }
+}
+
 include 'includes/logic.php';
+
+
 
 ?><!DOCTYPE html>
 <html lang="ru">
@@ -22,7 +47,6 @@ include 'includes/logic.php';
 <link href="styles/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet"/>
 <link rel="stylesheet" href="scripts/codemirror.css">
 <link rel="stylesheet" type="text/css" href="styles/style.css" />
-
 </head>
 <body>
 <div class="header panel-success ">
@@ -55,6 +79,7 @@ case 'edit':?>
 		<input type="hidden" name="action" value="save">
 		<input type="hidden" name="table" value="<?php echo mysql_field_table($inq, 0);?>">
 		<?php
+		
 		$row = $db->__($inq);
 		$i=0;
 		$primary_finded = false;

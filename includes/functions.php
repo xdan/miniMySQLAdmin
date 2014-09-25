@@ -12,6 +12,18 @@ function ssd_deob($String, $Password='dgfdfg234'){
     return $String^$Gamma;
 }
 
+function stripslashesall(&$array) {
+    reset($array);
+    while (list($key, $val) = each($array)) {
+        if (is_string($val)) {
+        	$array[$key] = stripslashes($val);
+        } elseif (is_array($val)) {
+        	$array[$key] = stripslashesall($val);
+        }
+    }
+    return $array;
+}
+
 function _trim($value){
 	return preg_replace(array('#^[\n\r\t\s]+#u','#[\n\r\t\s]+$#u'),'',$value);
 }

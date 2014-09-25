@@ -154,6 +154,7 @@ switch( $action ){
 			}else{
 				$sql = $_REQUEST['sql']? $_REQUEST['sql']:'SHOW DATABASES;';
 			}
+			
 			$action = 'index';
 			
 			$time = microtime(true);	
