@@ -6,7 +6,7 @@ $config = array(
 	'max_str_len'=>'100',
 	'count_on_page'=>'20',
 	'ssd_deob'=>'hjkhjssre4',
-	'charset'=>'utf-8',
+	//'charset'=>'utf-8',
 	//'host'=>'localhost',
 	//'username'=>'root',
 	//'password'=>'parol',
@@ -18,6 +18,7 @@ class db{
 	private $error = '';
 	private $last_query = '';
 	public $separator = ';';
+	public $charset = false;
 	function error(){
 		return $this->error;
 	}
@@ -28,6 +29,8 @@ class db{
 		return $this->last_query;
 	}
 	function selectdb( $dbname,$charset="utf8" ){
+		if( $this->charset )
+			 $charset = $this->charset;
 		if( mysql_select_db($dbname, $this->connid) ){
 			return $this->q("SET NAMES '".$charset."'") && $this->q("SET CHARSET '".$charset."'") && $this->q("SET CHARACTER SET '".$charset."'") && $this->q("SET SESSION collation_connection = '{$charset}_general_ci'");
 		}else{
@@ -39,7 +42,9 @@ class db{
 		if( $this->connid )
 			mysql_close($this->connid);
 	}
-	function connect($host,$user,$password){
+	function connect($host,$user,$password,$charset=false){
+		if( $charset )
+			 $this->charset = $charset;
 		if( $this->connid = @mysql_connect($host, $user, $password) ){
 			return true;
 		}
@@ -159,10 +164,12 @@ function ssd_deob($String, $Password='dgfdfg234'){
 function _trim($value){
 	return preg_replace(array('#^[\n\r\t\s]+#u','#[\n\r\t\s]+$#u'),'',$value);
 }
-
-function _encode($host,$user,$password){
+function getPHPCharset( $charset ){
+	return $charset=='cp1251'?'windows-1251':$charset;
+}
+function _encode($host,$user,$password,$charcode){
 	global $config; 
-	return base64_encode(ssd_deob($host.'&|&'.$user.'&|&'.$password,$config['ssd_deob']));
+	return base64_encode(ssd_deob($host.'&|&'.$user.'&|&'.$password.'&|&'.$charcode,$config['ssd_deob']));
 }
 function _decode($val){
 	global $config; 
@@ -184,7 +191,7 @@ function analize($sql,$value,$key,$primary,$table){
 		}
 		return $value;
 	}elseif( preg_match('#^select#iu',_trim($sql)) ){
-		return ($table&&$primary?'<input type="checkbox" name="value" value="'.$value.'"> <a style="" onclick="return confirm(\'Are you shure?\')" href="?table='.$table.'&action=delete&key='.__($key).'&value='.__($value).'"><i class="icon icon_delete"></i></a> <a href="?table='.$table.'&action=edit&key='.$key.'&value='.$value.'"><i class="icon icon_edit"></i></a> ':'').htmlspecialchars(mb_substr($value,0,$config['max_str_len'],$config['charset']));
+		return ($table&&$primary?'<input type="checkbox" name="value" value="'.$value.'"> <a style="" onclick="return confirm(\'Are you shure?\')" href="?table='.$table.'&action=delete&key='.__($key).'&value='.__($value).'"><i class="icon icon_delete"></i></a> <a href="?table='.$table.'&action=edit&key='.$key.'&value='.$value.'"><i class="icon icon_edit"></i></a> ':'').htmlspecialchars(mb_substr($value,0,$config['max_str_len'],mb_detect_encoding($value)));
 	}
 	return $value;
 }
@@ -1459,15 +1466,15 @@ $database_selected  = false;
 $connected  = false;
 
 if( isset($_COOKIE[$config['cookie']]) ){
-	list($config['host'],$config['username'],$config['password']) = _decode($_COOKIE[$config['cookie']]);
-	if( $db->connect($config['host'],$config['username'],$config['password']) ){
+	list($config['host'],$config['username'],$config['password'],$config['charset']) = _decode($_COOKIE[$config['cookie']]);
+	if( $db->connect($config['host'],$config['username'],$config['password'],$config['charset']) ){
 		$connected = true;
 	}else{
 		$data['error'] = $db->error();
 	}
 }else{
 	if( isset($_SESSION['host']) and isset($_SESSION['username']) and isset($_SESSION['password']) ){
-		if( $db->connect($_SESSION['host'],$_SESSION['username'],$_SESSION['password']) ){
+		if( $db->connect($_SESSION['host'],$_SESSION['username'],$_SESSION['password'],$_SESSION['charset']) ){
 			$connected = true;
 		}else{
 			$data['error'] = $db->error();
@@ -1617,13 +1624,15 @@ switch( $action ){
 	break;
 	case 'connect':
 		$db->disconnect();
-		if( $db->connect($_REQUEST['host'],$_REQUEST['username'],$_REQUEST['password']) ){
+		
+		if( $db->connect($_REQUEST['host'],$_REQUEST['username'],$_REQUEST['password'],$_REQUEST['charset']) ){
 			if( !empty($_REQUEST['remember']) ){
-				setcookie($config['cookie'],_encode($_REQUEST['host'],$_REQUEST['username'],$_REQUEST['password']));
+				setcookie($config['cookie'],_encode($q = $_REQUEST['host'],$_REQUEST['username'],$_REQUEST['password'],$_REQUEST['charset']));
 			}else{
 				$_SESSION['host'] = $_REQUEST['host'];
 				$_SESSION['username'] = $_REQUEST['username'];
 				$_SESSION['password'] = $_REQUEST['password'];
+				$_SESSION['charset'] = $_REQUEST['charset'];
 			}
 			$action = 'index';
 			header('location:?action=index');
@@ -2220,7 +2229,7 @@ case 'login':?>
 				<select id="charset" class="form-control" name="charset">
 				  <option value="">- default -</option>
 				  <option value="utf8" selected="">utf8</option>
-				  <option value="windows1251">windows1251</option>
+				  <option value="cp1251">cp1251</option>
 				</select>
 			</div>
 		</div>

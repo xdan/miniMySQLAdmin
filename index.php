@@ -168,7 +168,7 @@ case 'login':?>
 				<select id="charset" class="form-control" name="charset">
 				  <option value="">- default -</option>
 				  <option value="utf8" selected="">utf8</option>
-				  <option value="windows1251">windows1251</option>
+				  <option value="cp1251">cp1251</option>
 				</select>
 			</div>
 		</div>

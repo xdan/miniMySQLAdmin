@@ -4,6 +4,7 @@ class db{
 	private $error = '';
 	private $last_query = '';
 	public $separator = ';';
+	public $charset = false;
 	function error(){
 		return $this->error;
 	}
@@ -14,6 +15,8 @@ class db{
 		return $this->last_query;
 	}
 	function selectdb( $dbname,$charset="utf8" ){
+		if( $this->charset )
+			 $charset = $this->charset;
 		if( mysql_select_db($dbname, $this->connid) ){
 			return $this->q("SET NAMES '".$charset."'") && $this->q("SET CHARSET '".$charset."'") && $this->q("SET CHARACTER SET '".$charset."'") && $this->q("SET SESSION collation_connection = '{$charset}_general_ci'");
 		}else{
@@ -25,7 +28,9 @@ class db{
 		if( $this->connid )
 			mysql_close($this->connid);
 	}
-	function connect($host,$user,$password){
+	function connect($host,$user,$password,$charset=false){
+		if( $charset )
+			 $this->charset = $charset;
 		if( $this->connid = @mysql_connect($host, $user, $password) ){
 			return true;
 		}

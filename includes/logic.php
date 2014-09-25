@@ -11,15 +11,15 @@ $database_selected  = false;
 $connected  = false;
 
 if( isset($_COOKIE[$config['cookie']]) ){
-	list($config['host'],$config['username'],$config['password']) = _decode($_COOKIE[$config['cookie']]);
-	if( $db->connect($config['host'],$config['username'],$config['password']) ){
+	list($config['host'],$config['username'],$config['password'],$config['charset']) = _decode($_COOKIE[$config['cookie']]);
+	if( $db->connect($config['host'],$config['username'],$config['password'],$config['charset']) ){
 		$connected = true;
 	}else{
 		$data['error'] = $db->error();
 	}
 }else{
 	if( isset($_SESSION['host']) and isset($_SESSION['username']) and isset($_SESSION['password']) ){
-		if( $db->connect($_SESSION['host'],$_SESSION['username'],$_SESSION['password']) ){
+		if( $db->connect($_SESSION['host'],$_SESSION['username'],$_SESSION['password'],$_SESSION['charset']) ){
 			$connected = true;
 		}else{
 			$data['error'] = $db->error();
@@ -169,13 +169,15 @@ switch( $action ){
 	break;
 	case 'connect':
 		$db->disconnect();
-		if( $db->connect($_REQUEST['host'],$_REQUEST['username'],$_REQUEST['password']) ){
+		
+		if( $db->connect($_REQUEST['host'],$_REQUEST['username'],$_REQUEST['password'],$_REQUEST['charset']) ){
 			if( !empty($_REQUEST['remember']) ){
-				setcookie($config['cookie'],_encode($_REQUEST['host'],$_REQUEST['username'],$_REQUEST['password']));
+				setcookie($config['cookie'],_encode($q = $_REQUEST['host'],$_REQUEST['username'],$_REQUEST['password'],$_REQUEST['charset']));
 			}else{
 				$_SESSION['host'] = $_REQUEST['host'];
 				$_SESSION['username'] = $_REQUEST['username'];
 				$_SESSION['password'] = $_REQUEST['password'];
+				$_SESSION['charset'] = $_REQUEST['charset'];
 			}
 			$action = 'index';
 			header('location:?action=index');
