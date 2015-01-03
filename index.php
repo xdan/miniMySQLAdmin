@@ -87,7 +87,7 @@ case 'edit':?>
 					$primary_finded  = true;
 				?>
 					<input type="hidden" name="primary_key" value="<?php echo htmlspecialchars($key);?>">
-					<input type="hidden" name="primary_value" value="<?php echo htmlspecialchars($value);?>"><?}
+					<input type="hidden" name="primary_value" value="<?php echo htmlspecialchars($value);?>"><?php }
 				?>
 			</div>
 		</div>
@@ -132,7 +132,7 @@ case 'add':?>
 					$primary_finded  = true;
 					?>
 					<input type="hidden" name="primary_key" value="<?php echo htmlspecialchars($key);?>">
-					<?
+					<?php
 				}
 				?>
 			</div>
@@ -157,9 +157,9 @@ case 'login':?>
 <div class="login panel panel-info">
   <div class="panel-heading">DB Connection Settings</div>
   <div class="panel-body">
-	<?if($data['error']){?>
+	<?php if($data['error']){?>
 	<div class="alert alert-danger"><?php echo $data['error']?></div>
-	<?}?>
+	<?php }?>
 	<form class="form-horizontal" role="form" method="post">
 		<input type="hidden" name="action" value="connect">
 		<div class="form-group">
@@ -256,7 +256,7 @@ case 'index':?>
 				</tr>
 				<?php
 				while ($row = $db->__($inq)){ 
-					?><tr><?
+					?><tr><?php
 						$i=0;
 						foreach($row as $key=>$value){
 							echo '<td><pre>'.analize($sql,$value,$key,$primary_key==$key,mysql_field_table($inq, 0)).'</pre></td>';
