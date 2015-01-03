@@ -31,7 +31,7 @@ include 'includes/logic.php';
 <html lang="ru">
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-<title>Mini MySQL Admin v<? include 'includes/version.php';?></title>
+<title>Mini MySQL Admin v<?php include 'includes/version.php';?></title>
 <meta name="keywords" content="" /> 
 <meta name="description" content=""/>
 <link href="styles/favicon.png" rel="shortcut icon" type="image/x-icon">
@@ -42,7 +42,7 @@ include 'includes/logic.php';
 </head>
 <body>
 <div class="header panel-success ">
-	<a href="http://xdsoft.net/miniMySQLAdmin/"><strong>miniMySQLAdmin</strong> <span style="opacity:0.7;">(version:<? include 'includes/version.php';?>)</span></a>
+	<a href="http://xdsoft.net/miniMySQLAdmin/"><strong>miniMySQLAdmin</strong> <span style="opacity:0.7;">(version:<?php include 'includes/version.php';?>)</span></a>
 	<?php if( $connected ){ ?>
 	<a href="?sql=<?php echo __('show databases;'); ?>">Databases</a>
 	<?php } ?>
@@ -91,7 +91,8 @@ case 'edit':?>
 				?>
 			</div>
 		</div>
-		<? $i++;
+		<?php
+            $i++;
 		}?>
 		<div class="form-group">
 			<div class="col-sm-offset-3 col-sm-10">
@@ -219,7 +220,8 @@ case 'login':?>
 	</form>
   </div>
 </div>
-<?break;
+<?php
+break;
 case 'index':?>
 <div class="workbox">
 	<form role="form" method="post">
@@ -260,7 +262,7 @@ case 'index':?>
 							echo '<td><pre>'.analize($sql,$value,$key,$primary_key==$key,mysql_field_table($inq, 0)).'</pre></td>';
 							$i++;
 						}
-					?></tr><? 
+					?></tr><?php
 				}
 				?>
 			</table>
@@ -282,7 +284,8 @@ case 'index':?>
 	}?>
 	</div>
 </div>
-<?break;
+<?php
+break;
 }
 ?>
 <div class="footer">author: <a href="http://xdsoft.net"><strong>Chupurnov Valeriy</strong></a> mail:<a href="mailto:chupurnov@gmail.com"><strong>chupurnov@gmail.com</strong></a> Donate: paypal <strong>skoder@ya.ru</strong>, Yandex Money <strong>41001437985378</strong>, WMR <strong>R292055463147</strong>, WMZ <strong>Z326592306965</strong></div>
