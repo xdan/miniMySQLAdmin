@@ -31,7 +31,7 @@ include 'includes/logic.php';
 <html lang="ru">
 <head>
 <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-<title>Mini MySQL Admin v<? include 'includes/version.php';?></title>
+<title>Mini MySQL Admin v<?php include 'includes/version.php';?></title>
 <meta name="keywords" content="" /> 
 <meta name="description" content=""/>
 <link href="styles/favicon.png" rel="shortcut icon" type="image/x-icon">
@@ -42,7 +42,7 @@ include 'includes/logic.php';
 </head>
 <body>
 <div class="header panel-success ">
-	<a href="http://xdsoft.net/miniMySQLAdmin/"><strong>miniMySQLAdmin</strong> <span style="opacity:0.7;">(version:<? include 'includes/version.php';?>)</span></a>
+	<a href="http://xdsoft.net/miniMySQLAdmin/"><strong>miniMySQLAdmin</strong> <span style="opacity:0.7;">(version:<?php include 'includes/version.php';?>)</span></a>
 	<?php if( $connected ){ ?>
 	<a href="?sql=<?php echo __('show databases;'); ?>">Databases</a>
 	<?php } ?>
@@ -87,11 +87,12 @@ case 'edit':?>
 					$primary_finded  = true;
 				?>
 					<input type="hidden" name="primary_key" value="<?php echo htmlspecialchars($key);?>">
-					<input type="hidden" name="primary_value" value="<?php echo htmlspecialchars($value);?>"><?}
+					<input type="hidden" name="primary_value" value="<?php echo htmlspecialchars($value);?>"><?php }
 				?>
 			</div>
 		</div>
-		<? $i++;
+		<?php
+            $i++;
 		}?>
 		<div class="form-group">
 			<div class="col-sm-offset-3 col-sm-10">
@@ -131,7 +132,7 @@ case 'add':?>
 					$primary_finded  = true;
 					?>
 					<input type="hidden" name="primary_key" value="<?php echo htmlspecialchars($key);?>">
-					<?
+					<?php
 				}
 				?>
 			</div>
@@ -156,9 +157,9 @@ case 'login':?>
 <div class="login panel panel-info">
   <div class="panel-heading">DB Connection Settings</div>
   <div class="panel-body">
-	<?if($data['error']){?>
+	<?php if($data['error']){?>
 	<div class="alert alert-danger"><?php echo $data['error']?></div>
-	<?}?>
+	<?php }?>
 	<form class="form-horizontal" role="form" method="post">
 		<input type="hidden" name="action" value="connect">
 		<div class="form-group">
@@ -219,7 +220,8 @@ case 'login':?>
 	</form>
   </div>
 </div>
-<?break;
+<?php
+break;
 case 'index':?>
 <div class="workbox">
 	<form role="form" method="post">
@@ -254,13 +256,13 @@ case 'index':?>
 				</tr>
 				<?php
 				while ($row = $db->__($inq)){ 
-					?><tr><?
+					?><tr><?php
 						$i=0;
 						foreach($row as $key=>$value){
 							echo '<td><pre>'.analize($sql,$value,$key,$primary_key==$key,mysql_field_table($inq, 0)).'</pre></td>';
 							$i++;
 						}
-					?></tr><? 
+					?></tr><?php
 				}
 				?>
 			</table>
@@ -282,7 +284,8 @@ case 'index':?>
 	}?>
 	</div>
 </div>
-<?break;
+<?php
+break;
 }
 ?>
 <div class="footer">author: <a href="http://xdsoft.net"><strong>Chupurnov Valeriy</strong></a> mail:<a href="mailto:chupurnov@gmail.com"><strong>chupurnov@gmail.com</strong></a> Donate: paypal <strong>skoder@ya.ru</strong>, Yandex Money <strong>41001437985378</strong>, WMR <strong>R292055463147</strong>, WMZ <strong>Z326592306965</strong></div>
